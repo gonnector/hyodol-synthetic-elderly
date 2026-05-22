@@ -17,6 +17,16 @@ docs/07_known-issues-and-precautions.md 와 README.md 를 먼저 읽어.
 scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 보여줘.
 ```
 
+**1.5단계 — 데이터 검증 (smoke test)**:
+```
+받은 hyodol-data가 제대로 설치됐는지 검증해줘.
+(1) data/pilot-100-v2/ 에 profile/behavior_log/survey_responses 3개 parquet 파일 존재 확인
+(2) DuckDB로 행 수 — profile=100, behavior_log≈350K, survey_responses=16,800 — 기대값과 맞는지
+(3) 프로필 첫 5명(user_id, age, sex, usage_pattern) 표로 출력
+(4) 인지 측정 페어 샘플 3건 (prompt_type, response_occurred, response_delay_sec)
+모두 정상이면 "✅ 준비 완료" 한 줄로 마무리, 어디서 어긋나면 무엇이 문제인지 알려줘.
+```
+
 **2단계 — 첫 탐색 3가지**:
 ```
 받은 데이터로 첫 탐색 3가지 보여줘:
