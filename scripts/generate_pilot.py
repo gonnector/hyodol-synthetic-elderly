@@ -520,6 +520,9 @@ def compute_survey_totals(survey_df, user_id, wave):
             continue
         if st == 'whodas':
             sub = sub[sub['question_no'].between(1, 12)]
+        elif st == 'phq9':
+            # Fix 8 — PHQ-9 총점은 Q1~Q9만 합산 (0~27). Q10은 기능손상 별도 변수
+            sub = sub[sub['question_no'].between(1, 9)]
         totals[st] = int(sub['answer_score'].sum())
     return totals
 
