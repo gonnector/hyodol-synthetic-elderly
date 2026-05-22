@@ -1,0 +1,25 @@
+# 시범 단계별 데이터 — pilot-100-v2 만 배포 (외부 학생용)
+data/profile.parquet
+data/behavior_log.parquet
+data/survey_responses.parquet
+data/joined_wide.parquet
+data/pilot-50/
+data/pilot-100/
+
+# DuckDB·CSV 임시 파일
+*.duckdb
+*.duckdb.wal
+*.duckdb.tmp
+_*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.python-version
+
+# OS·IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
