@@ -1,9 +1,44 @@
 # 효돌 합성 어르신 데이터셋 (Hyodol Synthetic Elderly Dataset)
 
-- 버전: v0.1.0 (스키마 확정 전 초안)
+- 버전: v0.1.0 (100명 시범, Fix 8 적용)
 - 작성자: DATA (Gonnector AI Team — 데이터 사이언티스트)
-- 최종 갱신: 2026-05-21
+- 최종 갱신: 2026-05-22
 - 용도: 서울대 아동가족학과 "아동·가족 데이터 분석" 12주차 수업 실습 자료
+
+---
+
+## 🎓 학생용 빠른 시작 (Claude Code에 복붙)
+
+**1단계 — 받기·셋업**:
+```
+https://github.com/gonnector/hyodol-synthetic-elderly 레포를 ./hyodol-data 폴더로 git clone해줘.
+docs/07_known-issues-and-precautions.md 와 README.md 를 먼저 읽어.
+그 다음 DuckDB가 설치돼 있는지 확인하고 없으면 설치해.
+scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 보여줘.
+```
+
+**2단계 — 첫 탐색 3가지**:
+```
+받은 데이터로 첫 탐색 3가지 보여줘:
+(1) 연령대(50s/60s/70s/80s/90s)별 인원 수와 사용 패턴 7종 분포
+(2) 사용자별 90일 총 이벤트 수 분포 — boxplot으로
+(3) 인지 측정 페어 응답률·평균 딜레이를 연령대별로
+표와 차트로 정리하고, 합성 데이터라는 한계도 한 줄 명시해줘.
+```
+
+**3단계 — 본인 관심 주제** → `docs/04_analysis-guide.md` Section 5의 시나리오 A~F 6종에서 선택.
+
+## ⚠️ 학생 안티패턴 5가지 (절대 금지)
+
+1. ❌ "효돌이 우울을 감소시킨다" 같은 인과 추론 결론
+2. ❌ p-value 보고로 효과성 입증 시도
+3. ❌ "한국 노인 X%가 ~다" 모집단 일반화
+4. ❌ 개별 user_id를 보고서에 노출 (집계·군집 단위만)
+5. ❌ 데이터 파일을 외부 공개 저장소·SNS에 업로드
+
+상세: `docs/07_known-issues-and-precautions.md`
+
+---
 
 ---
 
