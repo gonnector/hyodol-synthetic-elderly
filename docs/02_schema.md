@@ -175,7 +175,7 @@ joined_wide (~430만)  ← profile + behavior_log denormalized (벤치마크 전
 | `dialogue_speaker` | [수정] | 'hyodol' / 'senior' (원본은 컬럼 2개, 우리는 row 2개로 정규화) |
 | `dialogue_text` | [유지] | 발화 텍스트 (효돌 원본 hyodol_utterance/senior_utterance 통합) |
 | `dialogue_duration_sec` | [신규] | 발화 길이 (초) |
-| `dialogue_stt_confidence` | [신규] | senior 발화의 STT 인식 신뢰도 (0~1) |
+| `dialogue_stt_confidence` | [신규] | senior 발화의 STT 인식 신뢰도 (0~1). 낮을수록 효돌→효도리/효소리 등 인식 오류 변형 빈도↑. **변형 비율의 분모 정의는 `docs/07_known-issues-and-precautions.md` Section 1-3 항목 #9 참조** (전체 senior 발화 분모 기준 약 12.76%, 의도 10~30% 정상) |
 
 ### 2-3. Interaction 전용 (event_type='interaction')
 
