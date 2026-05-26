@@ -1,9 +1,11 @@
 # 효돌 합성 어르신 데이터셋 (Hyodol Synthetic Elderly Dataset)
 
-- 버전: v0.1.0 (100명 시범, Fix 8 적용)
+- 버전: **v0.2.0** (1000명 풀스케일 — 옵션 B 머지 전략, 외부 평가 8/8 PASS)
 - 작성자: DATA (Gonnector AI Team — 데이터 사이언티스트)
-- 최종 갱신: 2026-05-22
+- 최종 갱신: 2026-05-26
 - 용도: 서울대 아동가족학과 "아동·가족 데이터 분석" 12주차 수업 실습 자료
+
+> **v0.2.0 변경점**: 1000명 풀스케일 데이터 (`data/pilot-1000/`) 추가. 500명 × 2 batch (다른 seed) 합성 후 머지 — 카이제곱 검정으로 batch 간 분포 동질성 검증. 외부 sub-agent 평가에서 8개 항목 모두 PASS. 100명 v2 (`data/pilot-100-v2/`)는 호환성을 위해 그대로 유지.
 
 ---
 
@@ -20,10 +22,11 @@ scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 �
 **1.5단계 — 데이터 검증 (smoke test)**:
 ```
 받은 hyodol-data가 제대로 설치됐는지 검증해줘.
-(1) data/pilot-100-v2/ 에 profile/behavior_log/survey_responses 3개 parquet 파일 존재 확인
-(2) DuckDB로 행 수 — profile=100, behavior_log≈350K, survey_responses=16,800 — 기대값과 맞는지
-(3) 프로필 첫 5명(user_id, age, sex, usage_pattern) 표로 출력
+(1) data/pilot-1000/ 에 profile/behavior_log/survey_responses 3개 parquet 파일 존재 확인
+(2) DuckDB로 행 수 — profile=1000, behavior_log≈3,670,000, survey_responses=168,000 — 기대값과 맞는지
+(3) 프로필 첫 5명(user_id, age, sex, usage_pattern, batch_id) 표로 출력
 (4) 인지 측정 페어 샘플 3건 (prompt_type, response_occurred, response_delay_sec)
+(5) batch 분포 (batch_id=1 vs 2 — 각 500명)
 모두 정상이면 "✅ 준비 완료" 한 줄로 마무리, 어디서 어긋나면 무엇이 문제인지 알려줘.
 ```
 
@@ -52,9 +55,10 @@ scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 �
 
 ---
 
-## ⚠️ 현재 배포 버전 (v0.1.0) — 수업용 시범 데이터
+## 🎯 현재 배포 버전 (v0.2.0) — 1000명 풀스케일
 
-본 버전은 **100명 시범 데이터**(`data/pilot-100-v2/`)다. 1000명 풀스케일·외부 평가 PASS 버전은 별도 배포 예정.
+- 메인: **1000명 풀스케일** (`data/pilot-1000/`) — 외부 평가 8/8 PASS
+- 호환: 100명 시범 (`data/pilot-100-v2/`) — v0.1.0 호환성 유지
 
 **LLM 보조자·학생 모두 분석 시작 전 반드시 읽을 것**: `docs/07_known-issues-and-precautions.md` (현재 데이터 한계·DO/DON'T·우선 분석 순서)
 
@@ -98,10 +102,10 @@ duckdb hyodol.duckdb -c "SELECT * FROM _meta;"
 | 버전 | v0.1.0 |
 | 합성 기준 시점 | 2026-05-21 |
 | 관찰 기간 | 2026-01-01 ~ 2026-03-31 (90일) |
-| 표본 규모 | **어르신 1,000명** |
+| 표본 규모 | **어르신 1,000명** (50명 × 2 batch 머지, 카이제곱 검정으로 분포 동질성 확인) |
 | 연령 범위 | **50~99세** (60+ 비중 78% — 70대 강화·80대 축소 조정) |
-| 행동 로그 규모 | 약 350만~430만 이벤트 |
-| 설문 응답 규모 | 약 192,000 응답 (1000명 × 96문항 × 2 wave) |
+| 행동 로그 규모 | **3,671,068 이벤트** (실측) |
+| 설문 응답 규모 | **168,000 응답** (실측 — 96문항 × 2 wave, usability 사전 wave 제외) |
 | 라이센스 | CC BY-NC-SA 4.0 (비상업적 사용·동일조건 변경 허락) |
 | 원본 reference | ㈜효돌 운영 스키마 + 효돌_샘플데이터_비식별_20260424.xlsx (24명) |
 | 인구통계 reference | NVIDIA Nemotron-Personas-Korea 1.0 (CC BY 4.0) |

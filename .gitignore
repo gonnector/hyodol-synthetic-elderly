@@ -1,10 +1,12 @@
-# 시범 단계별 데이터 — pilot-100-v2 만 배포 (외부 학생용)
+# 시범 단계별 데이터 — pilot-100-v2 + pilot-1000 배포 (외부 학생용)
 data/profile.parquet
 data/behavior_log.parquet
 data/survey_responses.parquet
 data/joined_wide.parquet
 data/pilot-50/
 data/pilot-100/
+data/pilot-500-v2/
+data/pilot-500-v2-batch2/
 
 # DuckDB·CSV 임시 파일
 *.duckdb
