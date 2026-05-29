@@ -12,6 +12,8 @@
 
 ## 🎓 학생용 빠른 시작 (Claude Code에 복붙)
 
+> **W13 수업(2026-05-29) 학생**: 수업 중·후 자기 페이스로 참고할 동반 가이드 → **`docs/W13_class-companion.md`** 우선 열기 (시간 안배·prompt 5종·트러블슈팅·과제 안내 한 파일).
+
 > **이전 버전(v0.1.0/v0.2.0)을 이미 받은 학생**은 1단계 대신 **"기존 학생 업데이트"** 섹션으로 직행.
 
 **1단계 — 받기·셋업** (처음 받는 학생):
@@ -170,7 +172,8 @@ hyodol-synthetic-dataset/
 │   ├── 04_analysis-guide.md                     분석 가이드 (LLM/학생용)
 │   ├── 05_limitations-and-ethics.md             한계점 · 윤리
 │   ├── 06_student-workflow-with-claude-code.md  학생용 Claude Code 워크플로우
-│   └── 07_known-issues-and-precautions.md       ★ 현재 데이터 한계·DO/DON'T (수업용 필독)
+│   ├── 07_known-issues-and-precautions.md       ★ 현재 데이터 한계·DO/DON'T (수업용 필독)
+│   └── W13_class-companion.md                   ★ W13 수업(2026-05-29) 학생 동반 가이드
 ├── scripts/
 │   ├── setup-duckdb.sql                         DuckDB 환경 셋업 (1000명 default + 100명 호환)
 │   ├── generate_pilot.py                        합성 본체 (profile/behavior_log/survey_responses)
