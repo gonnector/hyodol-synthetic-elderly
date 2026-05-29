@@ -78,18 +78,18 @@ scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 �
 ## 빠른 시작
 
 ```bash
-# 1. 데이터 다운로드 (TBD — Hugging Face 또는 공유 링크)
-huggingface-cli download <repo>/hyodol-synthetic-elderly \
-  --repo-type dataset \
-  --local-dir ./hyodol-data
+# 1. GitHub 레포 clone
+git clone https://github.com/gonnector/hyodol-synthetic-elderly.git
+cd hyodol-synthetic-elderly
 
-# 2. DuckDB 설정
+# 2. DuckDB 환경 셋업 (1000명 v0.2.1 default)
 duckdb hyodol.duckdb < scripts/setup-duckdb.sql
 
 # 3. 첫 쿼리
 duckdb hyodol.duckdb -c "SELECT * FROM _meta;"
 ```
 
+학생용 자연어 가이드(Claude Code 복붙)는 본 README 상단의 "🎓 학생용 빠른 시작" 섹션 참조.
 상세 가이드 → `docs/03_setup-and-download.md`
 
 ---
@@ -99,17 +99,19 @@ duckdb hyodol.duckdb -c "SELECT * FROM _meta;"
 | 항목 | 값 |
 |---|---|
 | 이름 | hyodol-synthetic-elderly |
-| 버전 | v0.1.0 |
-| 합성 기준 시점 | 2026-05-21 |
+| 버전 | **v0.2.1** (1000명 풀스케일, 외부 평가 8/8 PASS) |
+| 합성 기준 시점 | 2026-05-26 |
 | 관찰 기간 | 2026-01-01 ~ 2026-03-31 (90일) |
-| 표본 규모 | **어르신 1,000명** (50명 × 2 batch 머지, 카이제곱 검정으로 분포 동질성 확인) |
-| 연령 범위 | **50~99세** (60+ 비중 78% — 70대 강화·80대 축소 조정) |
+| 표본 규모 | **어르신 1,000명** (500명 × 2 batch 머지, 카이제곱 검정으로 분포 동질성 확인) |
+| 연령 범위 | **50~99세** (60+ 비중 78% — 70대 강화·80대 축소 도메인 조정) |
 | 행동 로그 규모 | **3,671,068 이벤트** (실측) |
 | 설문 응답 규모 | **168,000 응답** (실측 — 96문항 × 2 wave, usability 사전 wave 제외) |
+| 압축 후 용량 | profile 0.08 MB / behavior_log 65.88 MB / survey_responses 0.17 MB (총 약 66 MB) |
 | 라이센스 | CC BY-NC-SA 4.0 (비상업적 사용·동일조건 변경 허락) |
 | 원본 reference | ㈜효돌 운영 스키마 + 효돌_샘플데이터_비식별_20260424.xlsx (24명) |
 | 인구통계 reference | NVIDIA Nemotron-Personas-Korea 1.0 (CC BY 4.0) |
-| 포맷 | Parquet (압축) + DuckDB |
+| 포맷 | Parquet ZSTD + DuckDB |
+| 호환 데이터 | `data/pilot-100-v2/` (v0.1.0 100명, 약 6.5 MB) — 비교·교차 분석용 보존 |
 
 ---
 
@@ -118,20 +120,23 @@ duckdb hyodol.duckdb -c "SELECT * FROM _meta;"
 ```
 ┌─────────────────┐         ┌─────────────────────────┐
 │  profile        │         │  behavior_log           │
-│  (1,000 rows)   │ ──┐  ┌──│  (~430만 rows)          │
-│  인구통계+효돌  │   │  │  │  이벤트 단위            │
-│  +베이스라인    │   │  │  │  dialogue/interaction/  │
-│   설문 총점     │   │  │  │  program/health_check/  │
-│  +사용자유형    │   │  │  │  prompt/system          │
-└─────────────────┘   │  │  └────────────┬────────────┘
-                      │  │               │
-┌─────────────────┐   │  │  ┌────────────▼────────────┐
-│ survey_responses│ ──┘  │  │  joined_wide            │
-│ (~192,000 rows) │      │  │  (~430만 rows)          │
-│ 96문항×2 wave   │      └─►│  profile + behavior_log │
-└─────────────────┘         │  denormalized           │
-                            │  (벤치마크 전용)         │
-                            └─────────────────────────┘
+│  (1,000 rows)   │ ────────│  (3,671,068 rows)       │
+│  인구통계+효돌  │   user_ │  이벤트 단위            │
+│  +베이스라인    │   id 로 │  dialogue/interaction/  │
+│   설문 총점     │   join  │  program/health_check/  │
+│  +사용자유형    │         │  prompt/system          │
+│  +batch_id      │         │  +batch_id              │
+└─────────────────┘         └─────────────────────────┘
+        │
+        │   ┌─────────────────────────┐
+        └──>│ survey_responses        │
+            │ (168,000 rows)          │
+            │ 96문항 × 2 wave         │
+            │ +batch_id               │
+            └─────────────────────────┘
+
+※ joined_wide는 v0.2.x에서 옵션 다운로드 — 분석 시 학생이 직접 JOIN 사용
+   (`docs/02_schema.md` Section 4 참조)
 ```
 
 상세 스키마 → `docs/02_schema.md`
@@ -142,28 +147,36 @@ duckdb hyodol.duckdb -c "SELECT * FROM _meta;"
 
 ```
 hyodol-synthetic-dataset/
-├── README.md                       ← 본 문서 (entry point)
+├── README.md                                    ← 본 문서 (entry point)
+├── .gitignore / .gitattributes
 ├── docs/
-│   ├── 01_design-and-method.md           설계 의도 + 합성 방법론
-│   ├── 02_schema.md                      4 테이블 상세 스키마
-│   ├── 03_setup-and-download.md          다운로드 + DuckDB 설정
-│   ├── 04_analysis-guide.md              분석 가이드 (LLM/학생용)
-│   ├── 05_limitations-and-ethics.md      한계점 · 윤리
+│   ├── 01_design-and-method.md                  설계 의도 + 합성 방법론
+│   ├── 02_schema.md                             4 테이블 상세 스키마
+│   ├── 03_setup-and-download.md                 다운로드 + DuckDB 설정
+│   ├── 04_analysis-guide.md                     분석 가이드 (LLM/학생용)
+│   ├── 05_limitations-and-ethics.md             한계점 · 윤리
 │   ├── 06_student-workflow-with-claude-code.md  학생용 Claude Code 워크플로우
-│   └── 07_known-issues-and-precautions.md ★ 현재 데이터(100명 v2) 한계·DO/DON'T (수업용 필독)
+│   └── 07_known-issues-and-precautions.md       ★ 현재 데이터 한계·DO/DON'T (수업용 필독)
 ├── scripts/
-│   ├── setup-duckdb.sql            DuckDB 환경 셋업
-│   ├── generate_profile.py         (TBD) 프로필 1000명 합성
-│   ├── generate_behavior_log.py    (TBD) 행동 로그 합성
-│   ├── generate_dialogues.py       (TBD) 대화 스크립트 합성
-│   ├── generate_surveys.py         (TBD) 설문 응답 합성
-│   ├── build_joined_wide.py        (TBD) joined_wide 빌드
-│   └── benchmark_queries.py        (TBD) DuckDB 성능 벤치마크
-└── data/
-    ├── profile.parquet
-    ├── behavior_log.parquet
-    ├── survey_responses.parquet
-    └── joined_wide.parquet
+│   ├── setup-duckdb.sql                         DuckDB 환경 셋업 (1000명 default + 100명 호환)
+│   ├── generate_pilot.py                        합성 본체 (profile/behavior_log/survey_responses)
+│   ├── post_fix_phq9.py                         Fix 8 — PHQ-9 Q10 제외 post-processing
+│   └── merge_batches.py                         500명 × 2 batch 머지 + 자체 검증
+├── data/
+│   ├── pilot-1000/                              ★ v0.2.1 메인 — 1000명 풀스케일
+│   │   ├── profile.parquet
+│   │   ├── behavior_log.parquet
+│   │   └── survey_responses.parquet
+│   └── pilot-100-v2/                            v0.1.0 호환 — 100명 시범
+│       ├── profile.parquet
+│       ├── behavior_log.parquet
+│       └── survey_responses.parquet
+└── eval/
+    ├── evaluation-rubric.md                     외부 평가 기준 (sub-agent용 prompt)
+    └── reports/
+        ├── 20260521_eval_pilot-100_general-purpose.md      1차 평가 (CONDITIONAL PASS)
+        ├── 20260521_eval_pilot-100-v2_general-purpose.md   2차 평가 (PASS)
+        └── 20260526_eval_pilot-1000_general-purpose.md     3차 평가 (8/8 PASS)
 ```
 
 ---

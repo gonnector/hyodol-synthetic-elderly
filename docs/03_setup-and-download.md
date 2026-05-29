@@ -82,43 +82,43 @@ pip install duckdb
 
 > ⚠️ **현재 상태 (2026-05-21)**: 본 데이터셋은 합성 스크립트 작성 단계이며 아직 공식 배포되지 않았습니다. 다운로드 경로는 v0.2.0 (데이터 생성 완료) 시점에 확정 후 업데이트됩니다.
 
-### 1-A. Hugging Face Hub (배포 후보 1 — default)
+### 1-A. GitHub 퍼블릭 레포 (현재 공식 배포 채널)
 
 ```bash
-# CLI 설치
-pip install -U "huggingface_hub[cli]"
-
-# 다운로드 — 핵심 3 테이블만 (옵션 A)
-huggingface-cli download <org>/hyodol-synthetic-elderly \
-  --repo-type dataset \
-  --local-dir ./hyodol-data \
-  --include "data/profile.parquet" \
-  --include "data/behavior_log.parquet" \
-  --include "data/survey_responses.parquet" \
-  --include "scripts/setup-duckdb.sql" \
-  --include "README.md"
-
-# 전체 다운로드 (옵션 B, joined_wide 포함)
-huggingface-cli download <org>/hyodol-synthetic-elderly \
-  --repo-type dataset \
-  --local-dir ./hyodol-data
+# 전체 clone — 1000명 + 100명 호환 데이터 + 문서·스크립트·평가 보고서 (약 72 MB)
+git clone https://github.com/gonnector/hyodol-synthetic-elderly.git
+cd hyodol-synthetic-elderly
 ```
 
-### 1-B. 강의 클라우드 공유 (배포 후보 2)
+태그된 안정 버전을 받으려면:
 
-수강생 한정 Google Drive 공유 링크. 강의 시간에 별도 안내.
+```bash
+git clone --branch v0.2.1 https://github.com/gonnector/hyodol-synthetic-elderly.git
+```
+
+### 1-B. Hugging Face Hub (옵션 — 향후 미러)
+
+현재 GitHub가 공식 채널. HF 미러는 v0.3.x 이후 검토 예정.
 
 ### 1-C. 직접 빌드 (개발자용)
 
-스크립트로 재생성하려면 `scripts/` 하위 합성 스크립트 실행 (v0.2.0+ 제공). Nemotron-Personas-Korea가 사전 다운로드된 상태 필요 (Section 2 참조).
+스크립트로 재생성하려면 (Nemotron-Personas-Korea 사전 다운로드 필요 — Section 2 참조):
 
 ```bash
-python scripts/generate_profile.py
-python scripts/generate_behavior_log.py
-python scripts/generate_dialogues.py    # LLM 호출 비용 발생
-python scripts/generate_surveys.py
-python scripts/build_joined_wide.py
+# 1000명 합성 = 500명 × 2 batch 머지 (옵션 B 전략, 약 220분)
+python scripts/generate_pilot.py --n 500 --seed 20260521   # batch1 (약 110분)
+# (data/ 백업 후)
+python scripts/generate_pilot.py --n 500 --seed 20260526   # batch2 (약 110분)
+# 머지 + 자체 검증
+python scripts/merge_batches.py \
+  --batch1 data/pilot-500-v2 \
+  --batch2 data/pilot-500-v2-batch2 \
+  --out    data/pilot-1000
+# (선택) PHQ-9 0~27 clip post-fix
+python scripts/post_fix_phq9.py --target data/pilot-1000
 ```
+
+> v0.2.x에서는 `joined_wide`를 별도 parquet로 빌드하지 않고 학생 분석 시 SQL JOIN으로 생성한다. 벤치마크 시나리오 상세 → `docs/02_schema.md` Section 4.
 
 ---
 
