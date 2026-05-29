@@ -1,13 +1,10 @@
 # 효돌 합성 어르신 데이터셋 (Hyodol Synthetic Elderly Dataset)
 
-- 버전: **v0.2.3** (1000명 풀스케일 — 옵션 B 머지 전략, 외부 평가 8/8 PASS)
-- 설계 근간 (도메인·전략·핵심 결정): Dylan (고영혁, Gonnector)
-- 스키마·구현·문서 작성: DATA (Gonnector AI Team — 데이터 사이언티스트)
+- 버전: **v0.2.4** (1000명 풀스케일 — 옵션 B 머지 전략, 외부 평가 8/8 PASS)
+- 설계: Dylan (고영혁, Gonnector) + DATA (Gonnector AI Team)
 - 외부 평가: general-purpose sub-agent (1·2·3차 PASS)
 - 최종 갱신: 2026-05-26
 - 용도: 서울대 아동가족학과 "아동·가족 데이터 분석" 12주차 수업 실습 자료
-
-> Dylan의 도메인·전략 기여 핵심: 표본 분포 도메인 조정(80대 → 70대), 옵션 B 머지 전략 제안, 외부 평가 sub-agent 도입, 분모 정의 명확화 결정, 학생용 워크플로우 설계 방향.
 
 > **v0.2.0 변경점**: 1000명 풀스케일 데이터 (`data/pilot-1000/`) 추가. 500명 × 2 batch (다른 seed) 합성 후 머지 — 카이제곱 검정으로 batch 간 분포 동질성 검증. 외부 sub-agent 평가에서 8개 항목 모두 PASS. 100명 v2 (`data/pilot-100-v2/`)는 호환성을 위해 그대로 유지.
 
