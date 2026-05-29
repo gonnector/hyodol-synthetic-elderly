@@ -50,6 +50,27 @@ CREATE OR REPLACE TABLE dist_province AS
 CREATE OR REPLACE TABLE dist_batch AS
     SELECT batch_id, COUNT(*) AS n FROM profile GROUP BY batch_id ORDER BY batch_id;
 
+-- 5b. ★ 비전공 친화 family_group 6범주 wrapper (v0.2.5)
+-- profile.family_type 원본은 15+ 도메인으로 fragmented — 학생용 6범주로 묶음
+CREATE OR REPLACE VIEW profile_with_family_group AS
+    SELECT *,
+        CASE
+            WHEN family_type LIKE '혼자%'                                                  THEN '혼자'
+            WHEN family_type = '배우자와 거주'                                             THEN '배우자만'
+            WHEN family_type LIKE '배우자·자녀%' OR family_type LIKE '배우자.자녀%'        THEN '배우자+자녀'
+            WHEN family_type LIKE '자녀%'                                                  THEN '자녀와만'
+            WHEN family_type LIKE '%3세대%'
+              OR family_type LIKE '%부모와 거주%'
+              OR family_type LIKE '%편부모%'                                               THEN '3세대+'
+            ELSE '기타'
+        END AS family_group
+    FROM profile;
+
+CREATE OR REPLACE TABLE dist_family_group AS
+    SELECT family_group, COUNT(*) AS n
+    FROM profile_with_family_group
+    GROUP BY family_group ORDER BY n DESC;
+
 -- 6. 이벤트 타입 분포
 CREATE OR REPLACE TABLE dist_event_type AS
     SELECT event_type, COUNT(*) AS n
