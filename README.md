@@ -1,9 +1,13 @@
 # 효돌 합성 어르신 데이터셋 (Hyodol Synthetic Elderly Dataset)
 
-- 버전: **v0.2.0** (1000명 풀스케일 — 옵션 B 머지 전략, 외부 평가 8/8 PASS)
-- 작성자: DATA (Gonnector AI Team — 데이터 사이언티스트)
+- 버전: **v0.2.3** (1000명 풀스케일 — 옵션 B 머지 전략, 외부 평가 8/8 PASS)
+- 설계 근간 (도메인·전략·핵심 결정): Dylan (고영혁, Gonnector)
+- 스키마·구현·문서 작성: DATA (Gonnector AI Team — 데이터 사이언티스트)
+- 외부 평가: general-purpose sub-agent (1·2·3차 PASS)
 - 최종 갱신: 2026-05-26
 - 용도: 서울대 아동가족학과 "아동·가족 데이터 분석" 12주차 수업 실습 자료
+
+> Dylan의 도메인·전략 기여 핵심: 표본 분포 도메인 조정(80대 → 70대), 옵션 B 머지 전략 제안, 외부 평가 sub-agent 도입, 분모 정의 명확화 결정, 학생용 워크플로우 설계 방향.
 
 > **v0.2.0 변경점**: 1000명 풀스케일 데이터 (`data/pilot-1000/`) 추가. 500명 × 2 batch (다른 seed) 합성 후 머지 — 카이제곱 검정으로 batch 간 분포 동질성 검증. 외부 sub-agent 평가에서 8개 항목 모두 PASS. 100명 v2 (`data/pilot-100-v2/`)는 호환성을 위해 그대로 유지.
 
@@ -11,12 +15,22 @@
 
 ## 🎓 학생용 빠른 시작 (Claude Code에 복붙)
 
-**1단계 — 받기·셋업**:
+> **이전 버전(v0.1.0/v0.2.0)을 이미 받은 학생**은 1단계 대신 **"기존 학생 업데이트"** 섹션으로 직행.
+
+**1단계 — 받기·셋업** (처음 받는 학생):
 ```
 https://github.com/gonnector/hyodol-synthetic-elderly 레포를 ./hyodol-data 폴더로 git clone해줘.
 docs/07_known-issues-and-precautions.md 와 README.md 를 먼저 읽어.
 그 다음 DuckDB가 설치돼 있는지 확인하고 없으면 설치해.
 scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 보여줘.
+```
+
+**기존 학생 업데이트 (이미 hyodol-data 폴더가 있는 학생)**:
+```
+hyodol-data 폴더로 가서 git pull로 최신 버전(v0.2.2) 받아줘.
+그 다음 scripts/setup-duckdb.sql 을 hyodol.duckdb 에 다시 실행해줘 (CREATE OR REPLACE라 안전).
+끝나면 _meta 테이블을 보여줘서 profile=1000, behavior_log=3,671,068, survey_responses=168,000 으로 갱신됐는지 확인.
+이전 버전이면 profile=100 같은 작은 숫자가 나올 거야 — 그러면 git pull 또는 setup 재실행이 안 된 거니까 다시 시도.
 ```
 
 **1.5단계 — 데이터 검증 (smoke test)**:
@@ -28,6 +42,9 @@ scripts/setup-duckdb.sql로 hyodol.duckdb 환경 셋업하고 _meta 테이블 �
 (4) 인지 측정 페어 샘플 3건 (prompt_type, response_occurred, response_delay_sec)
 (5) batch 분포 (batch_id=1 vs 2 — 각 500명)
 모두 정상이면 "✅ 준비 완료" 한 줄로 마무리, 어디서 어긋나면 무엇이 문제인지 알려줘.
+
+만약 profile=100 같은 작은 숫자가 나오면 이전 버전(v0.1.0) 셋업이 남아 있는 거야 —
+"기존 학생 업데이트" 섹션을 다시 실행해서 git pull + setup-duckdb.sql 재실행 후 검증 다시.
 ```
 
 **2단계 — 첫 탐색 3가지**:
